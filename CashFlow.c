@@ -61,10 +61,9 @@ void min_cashflow() {
 
 int main() {
     printf("\n==============================================\n");
-    printf("   💸 Welcome to Cash Flow Minimizer Project 💸\n");
+    printf(" Welcome to Cash Flow Minimizer\n");
     printf("==============================================\n");
-    printf("👉 Goal: Reduce the number of transactions to settle debts.\n");
-    printf("👉 This is the FINAL PROJECT version.\n\n");
+    printf(" Goal: Reduce the number of transactions to settle debts.\n");
 
     printf("Enter number of people: ");
     scanf("%d", &n);
