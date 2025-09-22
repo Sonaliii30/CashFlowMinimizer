@@ -2,10 +2,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define RED     "\033[1;31m"
+#define GREEN   "\033[1;32m"
+#define YELLOW  "\033[1;33m"
+#define RESET   "\033[0m"
+
 #define N 100
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 
-int **graph;             // Matrix to store debts
+int graph[N][N];         // Matrix to store debts
 char people[N][N];       // Names of people
 int n;                   // Number of people
 
@@ -56,89 +61,69 @@ void min_cashflow() {
     printf("------------------------------------------------\n");
     for (int i = 0; i < n; i++) {
         if (amt[i] > 0)
-            printf("   %-10s will RECEIVE Rs.%d\n", people[i], amt[i]);
+            printf(GREEN "   %-10s will RECEIVE Rs.%d\n" RESET, people[i], amt[i]);
         else if (amt[i] < 0)
-            printf("   %-10s will PAY     Rs.%d\n", people[i], -amt[i]);
+            printf(RED "   %-10s will PAY     Rs.%d\n" RESET, people[i], -amt[i]);
         else
-            printf("   %-10s is SETTLED\n", people[i]);
+            printf(YELLOW "   %-10s is SETTLED\n" RESET, people[i]);
     }
     printf("------------------------------------------------\n");
 
     // Display settlements
-    printf("\n⚖️  Settlements (Minimum Transactions):\n");
+    printf("\n⚖️ Settlements (Minimum Transactions):\n");
     min_cashflow_rec(amt);
 }
 
-// Input debts matrix from user
-void input_debts() {
-    printf("\nEnter debts between people (in Rs, 0 if none):\n");
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            if (i == j) {
-                graph[i][j] = 0;
-                continue;
-            }
-            int value;
-            while (1) {
-                printf("   %s has to pay %s: Rs.", people[i], people[j]);
-                if (scanf("%d", &value) != 1 || value < 0) {
-                    printf("⚠️  Invalid input. Please enter a non-negative number.\n");
-                    while (getchar() != '\n'); // clear input buffer
-                    continue;
-                }
-                graph[i][j] = value;
-                break;
-            }
+// Helper function to get a person's index or add them if new
+int get_person_index(const char* name) {
+    for (int i = 0; i < n; ++i) {
+        if (strcmp(people[i], name) == 0) {
+            return i;
         }
     }
-}
-
-// Input people names
-void input_people() {
-    for (int i = 0; i < n; i++) {
-        printf("Enter name %d: ", i + 1);
-        scanf("%s", people[i]);
+    // If person not found, add them
+    if (n < N) {
+        strcpy(people[n], name);
+        return n++;
     }
-}
-
-// Free dynamic memory
-void free_memory() {
-    for (int i = 0; i < n; i++) free(graph[i]);
-    free(graph);
+    return -1; // Error case
 }
 
 int main() {
-    printf("\n==============================================\n");
-    printf("      Welcome to Cash Flow Minimizer\n");
-    printf("==============================================\n");
-    printf("Goal: Reduce the number of transactions to settle debts efficiently.\n");
-
-    // Input number of people
-    while (1) {
-        printf("Enter number of people (2-%d): ", N);
-        if (scanf("%d", &n) != 1 || n < 2 || n > N) {
-            printf("⚠️  Invalid input. Enter a number between 2 and %d.\n", N);
-            while (getchar() != '\n'); // clear input buffer
-            continue;
-        }
-        break;
+    int num_transactions;
+    if (scanf("%d", &num_transactions) != 1) {
+        printf("Error: Invalid number of transactions.\n");
+        return 1;
     }
 
-    // Allocate memory for debt matrix
-    graph = (int **) malloc(n * sizeof(int *));
-    for (int i = 0; i < n; i++)
-        graph[i] = (int *) malloc(n * sizeof(int));
+    n = 0; // Reset number of people
+    // Initialize graph with zeros
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < N; ++j) {
+            graph[i][j] = 0;
+        }
+    }
 
-    // Input names and debts
-    input_people();
-    input_debts();
+    for (int i = 0; i < num_transactions; ++i) {
+        char payer[N], receiver[N];
+        int amount;
+        if (scanf("%s %s %d", payer, receiver, &amount) != 3) {
+            printf("Error: Invalid transaction format.\n");
+            return 1;
+        }
 
-    // Compute and display minimum cash flow settlements
+        int payer_idx = get_person_index(payer);
+        int receiver_idx = get_person_index(receiver);
+
+        if (payer_idx == -1 || receiver_idx == -1) {
+            printf("Error: Maximum number of people reached.\n");
+            return 1;
+        }
+
+        graph[payer_idx][receiver_idx] += amount;
+    }
+
     min_cashflow();
 
-    // Free memory
-    free_memory();
-
-    printf("\n✅ All debts settled!\n");
     return 0;
 }

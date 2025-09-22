@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cash Flow Minimizer</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f4f4f9; }
+        h1 { color: #2c3e50; }
+        .transaction-input { margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        .transaction-input input { margin-right: 10px; padding: 8px; border: 1px solid #ddd; }
+        .transaction-input button { padding: 5px 10px; background: #c0392b; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        .transaction-input button:hover { background: #e74c3c; }
+        button#add-transaction { background: #3498db; }
+        button#add-transaction:hover { background: #2980b9; }
+        button#run-program { background: #27ae60; }
+        button#run-program:hover { background: #2ecc71; }
+        pre { background: #222; color: #0f0; padding: 10px; border-radius: 5px; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word; }
+    </style>
+</head>
+<body>
+    <h1>💰 Cash Flow Minimizer Web UI</h1>
+    <form action="/run" method="post" id="cashflow-form">
+        <h2>Transactions:</h2>
+        <div id="transactions-container">
+            </div>
+        <button type="button" id="add-transaction">Add Transaction</button>
+        <br><br>
+        <button type="submit" id="run-program">Run Program</button>
+    </form>
+
+    {% if output %}
+    <h2>📊 Output:</h2>
+    <pre>{{ output }}</pre>
+    {% endif %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('transactions-container');
+            const addButton = document.getElementById('add-transaction');
+
+            const createTransactionInput = () => {
+                const div = document.createElement('div');
+                div.className = 'transaction-input';
+
+                const payerInput = document.createElement('input');
+                payerInput.type = 'text';
+                payerInput.name = 'payer';
+                payerInput.placeholder = 'Payer';
+                payerInput.required = true;
+
+                const receiverInput = document.createElement('input');
+                receiverInput.type = 'text';
+                receiverInput.name = 'receiver';
+                receiverInput.placeholder = 'Receiver';
+                receiverInput.required = true;
+
+                const amountInput = document.createElement('input');
+                amountInput.type = 'number';
+                amountInput.name = 'amount';
+                amountInput.placeholder = 'Amount';
+                amountInput.step = '0.01';
+                amountInput.required = true;
+
+                const removeButton = document.createElement('button');
+                removeButton.type = 'button';
+                removeButton.textContent = 'Remove';
+                removeButton.onclick = () => div.remove();
+
+                div.append(payerInput, receiverInput, amountInput, removeButton);
+                container.appendChild(div);
+            };
+
+            // Add an initial transaction input field on page load
+            createTransactionInput();
+            
+            addButton.addEventListener('click', createTransactionInput);
+        });
+    </script>
+</body>
+</html>
